@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoUrban - Climate & Urban Planning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+          
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.2));
+            background-image: url(istockphoto-471296532-612x612.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: #faf3f3;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            background-attachment: fixed;
+            
+        }
+        
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #b39a9a 0%, #bbb0b0 100%),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="100" cy="100" r="1" fill="white" opacity="0.8"/><circle cx="300" cy="200" r="1.5" fill="white" opacity="0.6"/><circle cx="500" cy="150" r="1" fill="white" opacity="0.9"/><circle cx="700" cy="300" r="1.2" fill="white" opacity="0.7"/><circle cx="200" cy="400" r="1" fill="white" opacity="0.8"/><circle cx="800" cy="250" r="1.5" fill="white" opacity="0.5"/><circle cx="150" cy="600" r="1" fill="white" opacity="0.9"/><circle cx="600" cy="500" r="1.3" fill="white" opacity="0.6"/><circle cx="900" cy="400" r="1" fill="white" opacity="0.8"/><circle cx="400" cy="700" r="1.2" fill="white" opacity="0.7"/><circle cx="750" cy="600" r="1" fill="white" opacity="0.9"/><circle cx="50" cy="800" r="1.5" fill="white" opacity="0.5"/></svg>');
+            background-size: cover, 200px 200px;
+        }
+        
+        .earth-gradient {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .dark .earth-gradient {
+            background: linear-gradient(135deg, #0f3460 0%, #0e4b99 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .dark .card-hover:hover {
+            box-shadow: 0 25px 50px -12px rgba(0, 255, 255, 0.3);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+        }
+        
+        .button-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .button-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dark .button-hover:hover {
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .sos-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    
+
+        .dashboard-card {
+            border: 2px solid rgba(74, 89, 112, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .dark .dashboard-card {
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            background: rgba(17, 24, 39, 0.8);
+        }
+        
+        .alarm-flash {
+            animation: alarmFlash 0.5s infinite alternate;
+        }
+        
+        @keyframes alarmFlash {
+            0% { background-color: rgb(239, 68, 68); }
+            100% { background-color: rgb(185, 28, 28); }
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .dark .nav-item:hover {
+            background: rgba(0, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-black transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg fixed w-full top-0 z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <button onclick="showPage('home')" class="flex items-center space-x-3 text-blue-600 dark:text-cyan-400 font-bold text-xl">
+                        <!-- EcoUrban Logo - Earth with City & Nature -->
+                        <div class="relative">
+                            <svg width="44" height="44" viewBox="0 0 44 44" class="transition-transform duration-300 hover:scale-110 drop-shadow-lg">
+                                <!-- Outer glow ring -->
+                                <circle cx="22" cy="22" r="21" fill="none" stroke="url(#glowGradient)" stroke-width="0.5" opacity="0.6"/>
+                                
+                                <!-- Main Earth sphere -->
+                                <circle cx="22" cy="22" r="19" fill="url(#earthGradient)" stroke="url(#borderGradient)" stroke-width="1.5"/>
+                                
+                                <!-- Ocean waves pattern -->
+                                <path d="M5 20 Q10 18 15 20 Q20 22 25 20 Q30 18 35 20 Q38 22 39 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                                <path d="M4 25 Q9 23 14 25 Q19 27 24 25 Q29 23 34 25 Q37 27 40 29" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+                                
+                                <!-- Green continents with organic shapes -->
+                                <path d="M8 16 Q12 14 16 16 Q20 18 24 16 Q28 14 32 16 Q30 20 28 22 Q24 24 20 22 Q16 24 12 22 Q10 20 8 16" fill="url(#landGradient)" opacity="0.9"/>
+                                <path d="M10 28 Q14 30 18 28 Q22 26 26 28 Q30 30 34 28" fill="url(#landGradient)" opacity="0.7"/>
+                                <ellipse cx="15" cy="12" rx="3" ry="2" fill="url(#landGradient)" opacity="0.8"/>
+                                <ellipse cx="30" cy="32" rx="4" ry="2.5" fill="url(#landGradient)" opacity="0.8"/>
+                                
+                                <!-- Modern city skyline -->
+                                <g opacity="0.85">
+                                    <rect x="16" y="30" width="1.5" height="8" fill="url(#buildingGradient)" rx="0.2"/>
+                                    <rect x="18.5" y="28" width="1.8" height="10" fill="url(#buildingGradient)" rx="0.2"/>
+                                    <rect x="21" y="26" width="2" height="12" fill="url(#buildingGradient)" rx="0.3"/>
+                                    <rect x="23.5" y="29" width="1.6" height="9" fill="url(#buildingGradient)" rx="0.2"/>
+                                    <rect x="25.5" y="27" width="1.8" height="11" fill="url(#buildingGradient)" rx="0.2"/>
+                                    
+                                    <!-- Building windows -->
+                                    <rect x="21.2" y="28" width="0.3" height="0.4" fill="rgba(255,255,255,0.8)"/>
+                                    <rect x="21.5" y="28" width="0.3" height="0.4" fill="rgba(255,255,255,0.6)"/>
+                                    <rect x="21.2" y="30" width="0.3" height="0.4" fill="rgba(255,255,255,0.9)"/>
+                                    <rect x="21.5" y="30" width="0.3" height="0.4" fill="rgba(255,255,255,0.7)"/>
+                                </g>
+                                
+                                <!-- Floating leaf elements -->
+                                <g opacity="0.9">
+                                    <path d="M32 10 Q36 8 38 12 Q36 16 32 14 Q30 12 32 10" fill="url(#leafGradient)" transform="rotate(15 35 12)"/>
+                                    <path d="M8 32 Q12 30 14 34 Q12 38 8 36 Q6 34 8 32" fill="url(#leafGradient)" transform="rotate(-20 11 34)"/>
+                                </g>
+                                
+                                <!-- Atmospheric glow -->
+                                <circle cx="22" cy="22" r="19" fill="url(#atmosphereGradient)" opacity="0.3"/>
+                                
+                                <!-- Gradient definitions -->
+                                <defs>
+                                    <!-- Earth gradient -->
+                                    <radialGradient id="earthGradient" cx="0.3" cy="0.3">
+                                        <stop offset="0%" style="stop-color:#60a5fa"/>
+                                        <stop offset="40%" style="stop-color:#3b82f6"/>
+                                        <stop offset="70%" style="stop-color:#1e40af"/>
+                                        <stop offset="100%" style="stop-color:#1e3a8a"/>
+                                    </radialGradient>
+                                    
+                                    <!-- Land gradient -->
+                                    <linearGradient id="landGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#22c55e"/>
+                                        <stop offset="50%" style="stop-color:#16a34a"/>
+                                        <stop offset="100%" style="stop-color:#15803d"/>
+                                    </linearGradient>
+                                    
+                                    <!-- Building gradient -->
+                                    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#f8fafc"/>
+                                        <stop offset="50%" style="stop-color:#e2e8f0"/>
+                                        <stop offset="100%" style="stop-color:#cbd5e1"/>
+                                    </linearGradient>
+                                    
+                                    <!-- Leaf gradient -->
+                                    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#84cc16"/>
+                                        <stop offset="100%" style="stop-color:#22c55e"/>
+                                    </linearGradient>
+                                    
+                                    <!-- Border gradient -->
+                                    <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#3b82f6"/>
+                                        <stop offset="100%" style="stop-color:#10b981"/>
+                                    </linearGradient>
+                                    
+                                    <!-- Glow gradient -->
+                                    <radialGradient id="glowGradient">
+                                        <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0"/>
+                                        <stop offset="70%" style="stop-color:#10b981;stop-opacity:0.4"/>
+                                        <stop offset="100%" style="stop-color:#22c55e;stop-opacity:0.8"/>
+                                    </radialGradient>
+                                    
+                                    <!-- Atmosphere gradient -->
+                                    <radialGradient id="atmosphereGradient" cx="0.3" cy="0.3">
+                                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4"/>
+                                        <stop offset="60%" style="stop-color:#60a5fa;stop-opacity:0.1"/>
+                                        <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0"/>
+                                    </radialGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="bg-gradient-to-r from-blue-600 via-teal-500 to-green-600 bg-clip-text text-transparent dark:from-cyan-400 dark:via-teal-300 dark:to-green-400 font-extrabold tracking-wide">EcoUrban</span>
+                    </button>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8" id="navItems">
+                    <button onclick="showPage('home')" class="nav-item px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-cyan-400">Home</button>
+                    <button onclick="showPage('about')" class="nav-item px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-cyan-400">About</button>
+                    <button onclick="showPage('contact')" class="nav-item px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-cyan-400">Contact</button>
+                    <button onclick="showPage('profile')" class="nav-item px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-cyan-400">Profile</button>
+                    <button onclick="toggleAlarm()" id="alarmBtn" class="bg-yellow-600 dark:bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-600 transition-colors button-hover">
+                        <i class="fas fa-bell mr-2"></i>Alarm
+                    </button>
+                    <button onclick="showPage('login')" id="loginNavBtn" class="bg-blue-600 dark:bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-cyan-700 transition-colors button-hover">Login</button>
+                    <button onclick="logout()" id="logoutNavBtn" class="hidden bg-red-600 dark:bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700 dark:hover:bg-red-600 transition-colors button-hover">Logout</button>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                    <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-gray-700 dark:text-gray-300"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <button onclick="showPage('home')" class="block px-3 py-2 text-gray-700 dark:text-gray-300">Home</button>
+                <button onclick="showPage('about')" class="block px-3 py-2 text-gray-700 dark:text-gray-300">About</button>
+                <button onclick="showPage('contact')" class="block px-3 py-2 text-gray-700 dark:text-gray-300">Contact</button>
+                <button onclick="showPage('profile')" class="block px-3 py-2 text-gray-700 dark:text-gray-300">Profile</button>
+                <button onclick="showPage('login')" class="block px-3 py-2 text-blue-600 dark:text-cyan-400">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16 min-h-screen">
+        <!-- Home Page -->
+        <div id="homePage" class="page">
+            <!-- Hero Section -->
+            <section class="gradient-bg text-white py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center fade-in">
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                            Climate & Urban Planning
+                        </h1>
+                        <p class="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed">
+                            Climate change brings about new complexities in maintaining the wellbeing of society and the environment in cities. Natural resources, ecosystems, and infrastructure must be monitored to ensure human quality of life remains high. This app demonstrates how urban planners can use NASA Earth observation data to develop smart strategies for city growth while protecting both people and the environment.
+                        </p>
+                        <button class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors button-hover">
+                            Explore Dashboard
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Cards -->
+            <section class="py-16 bg-gray-50 dark:bg-gray-900">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Real-Time Monitoring Dashboard</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Climate Indicators -->
+                        <div class="card-hover dashboard-card bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
+                                    <i class="fas fa-thermometer-half text-blue-600 dark:text-blue-400 text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold ml-4 text-gray-900 dark:text-white">Climate Indicators</h3>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Temperature</span>
+                                    <span class="font-semibold text-gray-900 dark:text-white">24°C</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Air Quality</span>
+                                    <span class="font-semibold text-green-600 dark:text-green-400">Good</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Rainfall</span>
+                                    <span class="font-semibold text-gray-900 dark:text-white">12mm</span>
+                                </div>
+                            </div>
+                            <canvas id="climateChart" class="mt-4" height="100"></canvas>
+                        </div>
+
+                        <!-- Ecosystem Status -->
+                        <div class="card-hover dashboard-card bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-green-100 dark:bg-green-900 p-3 rounded-lg">
+                                    <i class="fas fa-leaf text-green-600 dark:text-green-400 text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold ml-4 text-gray-900 dark:text-white">Ecosystem Status</h3>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Forest Cover</span>
+                                    <span class="font-semibold text-green-600 dark:text-green-400">78%</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Water Bodies</span>
+                                    <span class="font-semibold text-blue-600 dark:text-blue-400">15%</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Biodiversity Index</span>
+                                    <span class="font-semibold text-gray-900 dark:text-white">8.2/10</span>
+                                </div>
+                            </div>
+                            <canvas id="ecosystemChart" class="mt-4" height="100"></canvas>
+                        </div>
+
+                        <!-- Urban Infrastructure -->
+                        <div class="card-hover dashboard-card bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-purple-100 dark:bg-purple-900 p-3 rounded-lg">
+                                    <i class="fas fa-city text-purple-600 dark:text-purple-400 text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold ml-4 text-gray-900 dark:text-white">Infrastructure</h3>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Road Network</span>
+                                    <span class="font-semibold text-green-600 dark:text-green-400">Optimal</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Energy Use</span>
+                                    <span class="font-semibold text-yellow-600 dark:text-yellow-400">Moderate</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Pollution Hotspots</span>
+                                    <span class="font-semibold text-red-600 dark:text-red-400">3 Areas</span>
+                                </div>
+                            </div>
+                            <canvas id="infrastructureChart" class="mt-4" height="100"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Map Section -->
+                    <div class="mt-16">
+                        <h3 class="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-white">NASA Earth Observation Data</h3>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                            <div class="bg-gradient-to-r from-blue-500 to-green-500 rounded-lg h-96 flex items-center justify-center">
+                                <div class="text-center text-white">
+                                    <i class="fas fa-satellite text-6xl mb-4"></i>
+                                    <h4 class="text-2xl font-bold mb-2">Interactive Earth Data Map</h4>
+                                    <p class="text-lg">Real-time satellite imagery and climate data visualization</p>
+                                    <button class="mt-4 bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                                        Launch Map View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- About Page -->
+        <div id="aboutPage" class="page hidden">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h1 class="text-4xl font-bold mb-6 text-gray-900 dark:text-white">About Our Team</h1>
+                        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                            We are building this app to help urban planners and citizens make informed decisions for sustainable city growth using NASA's Earth data.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Team Members -->
+                        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
+                            <div class="w-20 h-20 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-server text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Ayush</h3>
+                            <p class="text-blue-600 dark:text-blue-400 font-medium">Backend Developer</p>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">Specializes in data processing and NASA API integration</p>
+                        </div>
+
+                        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
+                            <div class="w-20 h-20 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-database text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Shubham</h3>
+                            <p class="text-green-600 dark:text-green-400 font-medium">Backend Developer</p>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">Focuses on climate data analytics and infrastructure</p>
+                        </div>
+
+                        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
+                            <div class="w-20 h-20 bg-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-paint-brush text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Kanak</h3>
+                            <p class="text-purple-600 dark:text-purple-400 font-medium">Frontend Developer</p>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">Creates beautiful and responsive user interfaces</p>
+                        </div>
+
+                        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
+                            <div class="w-20 h-20 bg-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-code text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Harshita</h3>
+                            <p class="text-pink-600 dark:text-pink-400 font-medium">Frontend Developer</p>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">Specializes in interactive data visualizations</p>
+                        </div>
+
+                        <div class="card-hover bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
+                            <div class="w-20 h-20 bg-yellow-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-headset text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Aditya Jain</h3>
+                            <p class="text-yellow-600 dark:text-yellow-400 font-medium">Support & Assistance</p>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">Provides technical support and user assistance</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Contact Page -->
+        <div id="contactPage" class="page hidden">
+            <section class="py-20">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h1 class="text-4xl font-bold mb-6 text-gray-900 dark:text-white">Contact & Support</h1>
+                        <p class="text-xl text-gray-600 dark:text-gray-400">
+                            Have questions about our climate planning tools? We're here to help!
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <!-- Contact Form -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
+                            <h3 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Send us a message</h3>
+                            <form class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
+                                    <input type="text" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Your full name">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                                    <input type="email" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="your.email@example.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Issue/Question</label>
+                                    <textarea rows="5" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Describe your question or issue..."></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 dark:bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-cyan-700 transition-colors">
+                                    Send Message
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- FAQ Section -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
+                            <h3 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Frequently Asked Questions</h3>
+                            <div class="space-y-4">
+                                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">How accurate is the NASA data?</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">Our app uses real-time NASA Earth observation data with high accuracy for climate and environmental monitoring.</p>
+                                </div>
+                                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Can I export reports?</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">Yes, you can export detailed reports in PDF format for research and policy-making purposes.</p>
+                                </div>
+                                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Is the app free to use?</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">Basic features are free. Premium features for advanced analytics require a subscription.</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">How often is data updated?</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">Climate data is updated every 6 hours, while satellite imagery is refreshed daily.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="page hidden">
+            <section class="py-20">
+                <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">Sign in to access your climate dashboard</p>
+                        </div>
+
+                        <form class="space-y-6" onsubmit="handleLogin(event)">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                                <input type="email" id="loginEmail" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="your.email@example.com" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                                <input type="password" id="loginPassword" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="••••••••" required>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                                </label>
+                                <a href="#" class="text-sm text-blue-600 dark:text-cyan-400 hover:underline">Forgot password?</a>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 dark:bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-cyan-700 transition-colors">
+                                Sign In
+                            </button>
+                        </form>
+
+                        <div class="mt-6">
+                            <div class="relative">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="px-2 bg-white dark:bg-gray-800 text-gray-500">Or</span>
+                                </div>
+                            </div>
+                            <button onclick="showPage('signup')" class="mt-4 w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                Create New Account
+                            </button>
+                        </div>
+
+                        <div class="mt-6 text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                By signing in, you agree to our privacy policy and data security measures.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sign Up Page -->
+        <div id="signupPage" class="page hidden">
+            <section class="py-20">
+                <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
+                        <div class="text-center mb-8">
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Create Account</h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">Join us in building sustainable cities</p>
+                        </div>
+
+                        <form class="space-y-6" onsubmit="handleSignup(event)">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+                                <input type="text" id="signupName" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Your full name" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                                <input type="email" id="signupEmail" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="your.email@example.com" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                                <input type="password" id="signupPassword" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="••••••••" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
+                                <input type="password" id="signupConfirmPassword" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" placeholder="••••••••" required>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Enable 2FA for enhanced security</span>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 dark:bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-cyan-700 transition-colors">
+                                Create Account
+                            </button>
+                        </form>
+
+                        <div class="mt-6 text-center">
+                            <button onclick="showPage('login')" class="text-sm text-blue-600 dark:text-cyan-400 hover:underline">
+                                Already have an account? Sign in
+                            </button>
+                        </div>
+
+                        <div class="mt-6 text-center">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                We prioritize your privacy and data security. All information is encrypted and protected.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profilePage" class="page hidden">
+            <section class="py-20">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h1 class="text-4xl font-bold mb-6 text-gray-900 dark:text-white">User Profile & Settings</h1>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Profile Settings -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
+                            <h3 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Profile Information</h3>
+                            <form class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
+                                    <input type="text" value="John Doe" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                                    <input type="email" value="john.doe@example.com" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organization</label>
+                                    <input type="text" value="City Planning Department" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 dark:bg-cyan-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-cyan-700 transition-colors">
+                                    Update Profile
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- App Settings -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
+                            <h3 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">App Settings</h3>
+                            <div class="space-y-6">
+                                <!-- Theme Toggle -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 dark:text-white">Theme Preference</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Choose between light and dark mode</p>
+                                    </div>
+                                    <button onclick="toggleTheme()" class="bg-blue-600 dark:bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-cyan-700 transition-colors">
+                                        <i class="fas fa-moon dark:hidden"></i>
+                                        <i class="fas fa-sun hidden dark:inline"></i>
+                                        <span class="ml-2 dark:hidden">Dark</span>
+                                        <span class="ml-2 hidden dark:inline">Light</span>
+                                    </button>
+                                </div>
+
+                                <!-- Notifications -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 dark:text-white">Climate Alerts</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Receive notifications for climate changes</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+
+                                <!-- Data Updates -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900 dark:text-white">Auto Data Refresh</h4>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Automatically update NASA data</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+
+                                <!-- Privacy -->
+                                <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-4">Privacy & Security</h4>
+                                    <div class="space-y-3">
+                                        <button class="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                            <i class="fas fa-shield-alt mr-3"></i>Two-Factor Authentication
+                                        </button>
+                                        <button class="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                            <i class="fas fa-download mr-3"></i>Download My Data
+                                        </button>
+                                        <button class="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                            <i class="fas fa-trash mr-3"></i>Delete Account
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- SOS Button -->
+    <button class="sos-pulse fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-lg z-50 transition-colors" onclick="sendSOSAlert()">
+        <i class="fas fa-exclamation-triangle text-2xl"></i>
+    </button>
+
+    <!-- SOS Modal -->
+    <div id="sosModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-md mx-4">
+            <div class="text-center">
+                <div class="bg-red-100 dark:bg-red-900 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Emergency Alert Sent</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    Your emergency alert has been sent to NDRF and local authorities. Help is on the way.
+                </p>
+                <button onclick="closeSOS()" class="bg-blue-600 dark:bg-cyan-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-cyan-700 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Management
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Authentication state
+        let isLoggedIn = false;
+        
+        // Page Navigation with authentication check
+        function showPage(pageId) {
+            // Check if user is trying to access protected pages
+            if (!isLoggedIn && pageId !== 'login' && pageId !== 'signup') {
+                showLoginRequired();
+                return;
+            }
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Show selected page
+            const targetPage = document.getElementById(pageId + 'Page');
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('fade-in');
+            }
+            
+            // Close mobile menu
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+        
+        // Show login required message
+        function showLoginRequired() {
+            alert('🔒 Please login or create an account to access the Climate Dashboard!');
+            showPage('login');
+        }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        // Emergency Sound System
+        let alarmActive = false;
+        let alarmInterval;
+        
+        function playEmergencySound() {
+            // Create emergency beep sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.type = 'square';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+        
+        function toggleAlarm() {
+            const alarmBtn = document.getElementById('alarmBtn');
+            
+            if (!alarmActive) {
+                alarmActive = true;
+                alarmBtn.classList.add('alarm-flash');
+                alarmBtn.innerHTML = '<i class="fas fa-bell-slash mr-2"></i>Stop Alarm';
+                
+                // Play emergency sound every 2 seconds
+                alarmInterval = setInterval(playEmergencySound, 2000);
+                playEmergencySound(); // Play immediately
+                
+                // Show alarm notification
+                alert('🚨 CLIMATE EMERGENCY ALARM ACTIVATED! 🚨\nMonitoring for critical environmental changes...');
+            } else {
+                alarmActive = false;
+                alarmBtn.classList.remove('alarm-flash');
+                alarmBtn.innerHTML = '<i class="fas fa-bell mr-2"></i>Alarm';
+                clearInterval(alarmInterval);
+                
+                alert('✅ Emergency alarm deactivated.');
+            }
+        }
+
+        // SOS Functionality
+        function sendSOSAlert() {
+            document.getElementById('sosModal').classList.remove('hidden');
+            
+            // Play emergency sound sequence
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => playEmergencySound(), i * 300);
+            }
+            
+            // In a real app, this would send an actual alert
+            console.log('Emergency alert sent to NDRF and local authorities');
+        }
+
+        function closeSOS() {
+            document.getElementById('sosModal').classList.add('hidden');
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Climate Chart
+            const climateCtx = document.getElementById('climateChart');
+            if (climateCtx) {
+                new Chart(climateCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Temperature (°C)',
+                            data: [22, 24, 23, 25, 24, 26, 24],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Ecosystem Chart
+            const ecosystemCtx = document.getElementById('ecosystemChart');
+            if (ecosystemCtx) {
+                new Chart(ecosystemCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Forest', 'Water', 'Urban', 'Other'],
+                        datasets: [{
+                            data: [78, 15, 5, 2],
+                            backgroundColor: [
+                                'rgb(34, 197, 94)',
+                                'rgb(59, 130, 246)',
+                                'rgb(156, 163, 175)',
+                                'rgb(251, 191, 36)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Infrastructure Chart
+            const infrastructureCtx = document.getElementById('infrastructureChart');
+            if (infrastructureCtx) {
+                new Chart(infrastructureCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Roads', 'Energy', 'Water', 'Waste'],
+                        datasets: [{
+                            data: [85, 72, 90, 68],
+                            backgroundColor: [
+                                'rgb(34, 197, 94)',
+                                'rgb(251, 191, 36)',
+                                'rgb(59, 130, 246)',
+                                'rgb(239, 68, 68)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Authentication Functions
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simple validation (in real app, this would be server-side)
+            if (email && password) {
+                isLoggedIn = true;
+                localStorage.setItem('userEmail', email);
+                updateNavigation();
+                showPage('home');
+                alert('🎉 Welcome to EcoUrban Climate Dashboard!\nYou are now logged in successfully.');
+            } else {
+                alert('❌ Please enter both email and password.');
+            }
+        }
+        
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            
+            // Validation
+            if (!name || !email || !password || !confirmPassword) {
+                alert('❌ Please fill in all fields.');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('❌ Passwords do not match.');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('❌ Password must be at least 6 characters long.');
+                return;
+            }
+            
+            // Store user data (in real app, this would be server-side)
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userEmail', email);
+            isLoggedIn = true;
+            updateNavigation();
+            showPage('home');
+            alert('🎉 Account created successfully!\nWelcome to EcoUrban Climate Dashboard!');
+        }
+        
+        function logout() {
+            isLoggedIn = false;
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userEmail');
+            updateNavigation();
+            showPage('login');
+            alert('👋 You have been logged out successfully.');
+        }
+        
+        function updateNavigation() {
+            const loginBtn = document.getElementById('loginNavBtn');
+            const logoutBtn = document.getElementById('logoutNavBtn');
+            
+            if (isLoggedIn) {
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        }
+        
+        // Check if user was previously logged in
+        function checkAuthState() {
+            const userEmail = localStorage.getItem('userEmail');
+            if (userEmail) {
+                isLoggedIn = true;
+                updateNavigation();
+                showPage('home');
+            } else {
+                showPage('login');
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+            initializeCharts();
+        });
+
+        // Handle other form submissions (demo functionality)
+        document.addEventListener('submit', function(e) {
+            // Skip login/signup forms as they have their own handlers
+            if (e.target.onsubmit) return;
+            
+            e.preventDefault();
+            alert('Form submitted successfully! (Demo mode)');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976db15430862982',t:'MTc1NjQ4Nzc1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
